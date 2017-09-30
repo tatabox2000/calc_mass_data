@@ -5,6 +5,8 @@ from plotly.graph_objs import Scatter, Figure, Layout
 from plotly.graph_objs import *
 import numpy as np
 import pandas as pd
+import  peakutils
+
 
 def plot_3D(file_name):
     #result = pd.read_csv(DIR + file_name,index_col='time')

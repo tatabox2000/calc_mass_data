@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import os
 import glob
+import peakutils
 
 title='PY-GC-MS'
 
@@ -26,17 +27,42 @@ for n ,name in enumerate(file_names):
     name = name.replace(".\\", "")
     name = name.replace("csv", "")
     name = name.replace("CDF", "")
+    name = name.replace("TXT", "")
     name = name.replace("..", "")
+    total_data = df.sum(axis=1)
+    data = go.Scatter(
+        x=df.index,
+        # y = df[name],
+        y=total_data,
+        name=name,
+        line=dict(
+            width=2)
+    )
+    sig_peaks = peakutils.indexes(total_data, thres=0.003,min_dist=10)
+    peaks_x = np.round(df.index.values[sig_peaks],2).tolist()
+    peaks_y = total_data.values[sig_peaks].tolist()
 
-    data =go.Scatter(
-        x = df.index,
-        #y = df[name],
-        y=df.sum(axis=1),
-        name = name,
-        line = dict(
-            width = 2)
+    trace = go.Scatter(
+        x= peaks_x,
+        y = peaks_y,
+        #y=[total_data.iloc[j] for j in sig_peaks ],
+        mode='markers+text',
+        text = peaks_x,
+        #text=[str(i) for i in peaks_x],
+        name = 'Peak',
+        textposition='top',
+        textfont=dict(
+            size=15
+        ),
+        marker=dict(
+            size=4,
+            color='rgb(100,0,255)',
+            symbol=6
+        ),
     )
     all_data.append(data)
+    all_data.append(trace)
+    all_name.append(name)
     all_name.append(name)
 
 #subplot
@@ -67,12 +93,13 @@ for n,trace in enumerate(all_data):
         fig.append_trace(trace, 2, 2)
 #all plot
 """
+
 sep_data = []
 for n,data  in enumerate(all_data):
-    if n == 2:
+    if n == 0:
         #pass
         sep_data.append(data)
-    elif n ==4:
+    elif n ==1:
         #pass
         sep_data.append(data)
     elif n == 8:
@@ -82,7 +109,6 @@ for n,data  in enumerate(all_data):
         #pass
         sep_data.append(data)
 
-
 #fig = dict(data=sep_data, layout=layout)
 for sep_result,sep_name in zip(all_data, all_name):
     layout = dict(
@@ -90,7 +116,22 @@ for sep_result,sep_name in zip(all_data, all_name):
         title=sep_name +'Chart',
         xaxis=dict(title=xname, autorange=autorange),
         yaxis=dict(title=yname),
-    )
-    fig = dict(data=[sep_result], layout=layout)
+        legend=dict(
+            x=0.7,
+            y=1,
+            #orientation="h",
+            traceorder='normal',
+            font=dict(
+                family='sans-serif',
+                size=20,
+                color='#000'
+            ),
+            # bgcolor='#E2E2E2',
+            # bordercolor='#FFFFFF',
+            # borderwidth=2
+        )
 
+    )
+   # fig = dict(data=[sep_result], layout=layout)
+    fig = dict(data=sep_data, layout=layout)
     plot(fig, filename= sep_name + '1.html',show_link=False)
