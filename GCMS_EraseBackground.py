@@ -36,23 +36,40 @@ print(DIR)
 # df =  df.drop(['17.1','18','18.1','28','28.1','29','29.1','32','32.1','40','44','206.9','207','207.9','208','208.9','209','73.1','73','96','132.9','133','147','96.1','164','163.9','177','176.9','190.9','191','191.9','192','192.9','193','248.9','249','249.9','250','251','265','266','266.9','267','281','282','283','284','340','340.9','341','342','355','355.1','356','356.1'],axis=1)
 # df['17.1'] = df['17.1'] - df['17.1'].median()
 # df.ix[np.isnan(df['18.1']), ['18']] = df.ix[np.isnan(df['18.1']), ['18']] - df['18.1'].median()
-
+# def adjust_mz(df):
+#     df['17.1'] = df['17.1'] - df['17.1'].median()
+#     df.columns_temp = df.columns.copy()
+#     df.columns = df.columns.astype(float)
+#     temp = df.columns.values
+#     margin = 0.101
+#     for n in np.arange(170, 500, 10):
+#         l = n - 0.1
+#         m = n + 0.1
+#         calc_n = np.where(np.abs(temp - n) < margin)
+#         df[n] = df.iloc[:, calc_n[0]].sum(axis=1)
+#
+#         calc_l = temp[np.where(temp == l)]
+#         calc_m = temp[np.where(temp == m)]
+#         df[calc_l] = 0
+#         df[calc_m] = 0
+#     df.columns = df
 def adjust_mz(df):
-    df['17.1'] = df['17.1'] - df['17.1'].median()
     df.columns_temp = df.columns.copy()
-    df.columns = df.columns.astype(float)
-    temp = df.columns.values
-    margin = 0.101
-    for n in np.arange(18, 499, 1):
-        l = n - 0.1
-        m = n + 0.1
-        calc_n = np.where(np.abs(temp - n) < margin)
+    df.columns = df.columns.astype(int)
+    col_values = df.columns.values
+    margin = 5
+
+    for n in np.arange(col_values.min(), col_values.max(), 10):
+        calc_n = np.where(temp - n < 0 and np.abs(temp - n) < margin)
+        print(calc_n)
         df[n] = df.iloc[:, calc_n[0]].sum(axis=1)
 
         calc_l = temp[np.where(temp == l)]
         calc_m = temp[np.where(temp == m)]
         df[calc_l] = 0
         df[calc_m] = 0
+        if n == col_values.min():
+            pressed_df = pd.Dataframe()
     df.columns = df.columns_temp
     return df
 
@@ -105,6 +122,6 @@ if __name__ == '__main__':
     for num, name in enumerate(file_names):
         print(name)
         df = pd.read_csv(name, header=1, index_col='time')
-        # df = erase_bk(df,name,save=1)
+        df = erase_bk(df,name,save=1)
         serch_peak_top(df)
 

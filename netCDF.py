@@ -4,8 +4,9 @@ import glob
 import os
 import pandas as pd
 import pylab as plt
+import math
 
-DIR = 'C:\\Users\\tatab\\\OneDrive\\Data\\AIAEXPRT.AIA\\'
+DIR = 'C:\\Users\\TakataANAC\\Desktop\\OneDrive-2017-09-14'
 
 os.chdir(DIR)
 file_names = glob.glob('*.CDF')
@@ -68,16 +69,20 @@ def cut_dupe(mass):
     return mass
     """
 for file_name in file_names:
-    cdf_file = nc.Dataset(DIR + file_name)
+    print(file_name)
+    cdf_file = nc.Dataset(file_name)
 
     time = np.array(cdf_file.variables['scan_acquisition_time'][:])
     time = np.insert(time,0,'0')
-    mass = np.round(np.array(cdf_file.variables['mass_values'][:]),decimals=1)
+    mass = np.array(cdf_file.variables['mass_values'][:]*10).astype(int)
+    print(mass.min()/10)
     point = np.array(cdf_file.variables['point_count'][:])
+    #index = np.round(np.arange(np.round(mass.min(),decimals=0),np.round(mass.max(),decimals=0),1),decimals=0).T
+    index = np.arange(math.floor(mass.min()/10)*10,math.ceil(mass.max()/10)*10+1,1).T.astype(int)
 
-    index = np.round(np.arange(np.round(mass.min(),decimals=1),np.round(mass.max(),decimals=1),0.1),decimals=1).T
+    print(index)
     #results.index.astype(int)
-    results = pd.DataFrame(index*10,columns=['mz'])
+    results = pd.DataFrame(index,columns=['mz'])
     #results.index = results['mz']
     #results= results.drop('mz',axis=1)
     print(results)
@@ -114,12 +119,12 @@ for file_name in file_names:
             results = pd.merge(results,result2, on='mz', how='left')
             n = n1
             #print(results.head())
-            print(results.shape)
+            #print(results.shape)
     #results=results.fillna(0)
-    results['mz']=results['mz']/10
+    results['mz']=results['mz']
     results=results.T
-    print(results.shape)
-    print(time.shape)
+    #print(results.shape)
+    #print(time.shape)
 
     results.index=time
     #np.savetxt(file_name +'.csv')
