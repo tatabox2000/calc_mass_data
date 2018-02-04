@@ -5,11 +5,11 @@ import os
 import pandas as pd
 import pylab as plt
 import math
-
-DIR = 'C:\\Users\\TakataANAC\\Desktop\\OneDrive-2017-09-14'
-
+DIR ='C:\\Users\\tatab\\OneDrive\\Data\\島津'
 os.chdir(DIR)
 file_names = glob.glob('*.CDF')
+
+
 def cut_dupe(mass):
     mass = np.round(mass)
     mass_chack = mass.copy()
@@ -68,6 +68,7 @@ def cut_dupe(mass):
 
     return mass
     """
+
 for file_name in file_names:
     print(file_name)
     cdf_file = nc.Dataset(file_name)
